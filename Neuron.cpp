@@ -28,12 +28,14 @@ double Neuron::feedForward(const std::vector<double>& inputs) {
 	return activate(dotProduct(inputs, weights));
 }
 
+//Leaky ReLU activation function, default alpha 0.01
 double Neuron::activate(double x) {
-	return (x > 0 ? x : 0);
+	return (x > 0 ? x : 0.01 * x);
 }
 
+//Derivative of Leaky ReLU activation function, default alpha 0.01
 double Neuron::derivative(double x) {
-	return (x > 0 ? 1 : 0);
+	return (x > 0 ? 1 : 0.01);
 }
 
 std::vector<double> Neuron::getWeights() const {

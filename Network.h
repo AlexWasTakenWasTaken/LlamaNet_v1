@@ -13,5 +13,7 @@ public:
 	Network(std::vector<int> topology);
 	std::vector<double> predict(const std::vector<double>& inputData);
 
+	double costFunction(const std::vector<double>& target, const std::vector<double>& output);
+	double gradientCalculation(const std::vector<double>& target, const std::vector<double>& output);
 };
 #endif // !Network_H

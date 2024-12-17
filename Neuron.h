@@ -4,7 +4,6 @@
 #define NEURON_H
 
 #include <vector>
-#include <cmath>
 #include <random>
 #include <ctime>
 
@@ -15,10 +14,11 @@ private:
 	double bias;
 
 	double xavRand(int inputs, int outputs); //uses Xavier initialization method to determine the range of random weights
-	double dotProduct(const std::vector<double>& a, const std::vector<double>& b); //computes the dot product of two vectors
-
 public:
     Neuron(int numInputs, int numOutputs);
+
+	double dotProduct(const std::vector<double>& a, const std::vector<double>& b); //computes the dot product of two vectors
+
 	double feedForward(const std::vector<double>& inputs);
 
 	double activate(double x);

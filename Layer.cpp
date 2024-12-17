@@ -8,11 +8,21 @@ Layer::Layer(int numNeurons, int numInputs) {
 
 std::vector<double> Layer::feedForward(const std::vector<double>& inputs) {
     std::vector<double> outputs;
+    this->zValues.clear();
+
     for (Neuron* neuron : neurons) {
-        outputs.push_back(neuron->feedForward(inputs));
+        // z = dotProduct(inputs, weights) + bias
+        double z = neuron->dotProduct(inputs, neuron->getWeights()) + neuron->getBias();
+        zValues.push_back(z);
+
+        outputs.push_back(neuron->activate(z));
     }
+
+	this->aValues = outputs;
     return outputs;
 }
+
+
 
 int Layer::getNumNeurons() const {
 	return neurons.size();
@@ -20,4 +30,16 @@ int Layer::getNumNeurons() const {
 
 Neuron* Layer::getNeuronAtIndex(int index) const {
 	return neurons[index];
+}
+
+std::vector<Neuron*> Layer::getNeurons() const {
+	return neurons;
+}
+
+std::vector<double> Layer::getZValues() const {
+	return aValues;
+}
+
+std::vector<double> Layer::getAValues() const {
+	return aValues;
 }

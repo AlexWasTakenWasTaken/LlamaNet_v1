@@ -18,10 +18,10 @@
     <ClInclude Include="Neuron.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Network.h">
+    <ClInclude Include="Layer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Layer.h">
+    <ClInclude Include="Network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
