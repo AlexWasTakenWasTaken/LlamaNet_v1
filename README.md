@@ -4,10 +4,14 @@ A simple barebones (for now) Neural Network built using only the C++ Standard Li
 
 To Implement:
 
-Multi-Input Propogation
+Multi-Input Propagation
+
 Allow for variable learning rate,  leaky ReLU alphas and Huber Loss deltas
+
 Allow for different activation functions 
+
 ADAM adaptive learning rate
+
 Nesterov Accelerated Gradient
 
 
