@@ -17,7 +17,6 @@ double Neuron::dotProduct(const std::vector<double>& a, const std::vector<double
 }
 
 Neuron::Neuron(int numInputs, int numOutputs){
-    std::srand(static_cast<unsigned>(std::time(0)));
 
     for (int i = 0; i < numInputs; ++i) {
         weights.push_back(xavRand(numInputs, numOutputs));

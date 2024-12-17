@@ -5,13 +5,15 @@
 #include "Network.h"
 
 int main() {
+	std::srand(static_cast<unsigned>(std::time(0)));
 
-	std::vector<int> topology = { 3, 4, 2 };
+
+	std::vector<int> topology = {3, 15, 15, 4};
 
 	Network network(topology);
 
 
-	std::vector<double> input = { 1.5, -0.2, 0.1 };
+	std::vector<double> input = { 1.5, -1.2, 1.1 };
 
 	std::vector<double> output = network.predict(input);
 
