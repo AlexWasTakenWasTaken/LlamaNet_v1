@@ -22,16 +22,6 @@ std::vector<double> Layer::feedForward(const std::vector<double>& inputs) {
     return outputs;
 }
 
-
-
-int Layer::getNumNeurons() const {
-	return neurons.size();
-}
-
-Neuron* Layer::getNeuronAtIndex(int index) const {
-	return neurons[index];
-}
-
 std::vector<Neuron*> Layer::getNeurons() const {
 	return neurons;
 }

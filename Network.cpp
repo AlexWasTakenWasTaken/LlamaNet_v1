@@ -66,79 +66,113 @@ std::vector<double> Network::frontpropogate(const std::vector<double>& inputData
 	return outputs;
 }
 
-void Network::backpropogate(const std::vector<double>& inputData, const std::vector<double>& target) {
-	
-	// default learning rate: 0.01
-    const double learningRate = 0.01;
+Network::Gradients Network::computeGradients(const std::vector<double>& inputData, const std::vector<double>& target) {
+    Gradients gradients;
+    gradients.weightGradients.resize(layers.size());
+    gradients.biasGradients.resize(layers.size());
 
     std::vector<double> output = this->frontpropogate(inputData);
-    std::vector<double> gradients = derivativeCost_Output(target, output);
+    std::vector<double> gradients_output = derivativeCost_Output(target, output);
 
     Layer* outputLayer = layers.back();
-
     std::vector<double> zValues = outputLayer->getZValues();
-    std::vector<double> aValues = outputLayer->getAValues();
 
-	// output layer delta calculation
-    // delta for output layer: delta = dCost/dOutput * dActivation/dZ
+    // Compute delta for output layer
     std::vector<double> delta_output(zValues.size());
     for (int i = 0; i < zValues.size(); i++) {
-
-        double dA_dZ = derivativeActivation_Z(zValues[i]);
-        delta_output[i] = gradients[i] * dA_dZ;
+        delta_output[i] = gradients_output[i] * derivativeActivation_Z(zValues[i]);
     }
 
-	// hidden layer delta calculation
-    std::vector<std::vector<double>> layerDeltas(layers.size());
-    layerDeltas.back() = delta_output;
+    std::vector<std::vector<double>> deltas(layers.size());
+    deltas.back() = delta_output;
 
-    // delta_l = (W_{l+1}^T * delta_{l+1}) * dA/dZ_l
+    // Backpropagate deltas
     for (int l = layers.size() - 2; l >= 0; l--) {
         Layer* currentLayer = layers[l];
         Layer* nextLayer = layers[l + 1];
+        deltas[l].resize(currentLayer->getNeurons().size());
 
-        std::vector<double> zValues = currentLayer->getZValues();
-        std::vector<double> dC_dZ(zValues.size(), 0.0);
-
-        // dC/dZ_l = (W_{l+1}^T * delta_{l+1}) element-wise multiplied by dA/dZ_l
-        for (int i = 0; i < currentLayer->getNumNeurons(); i++) {
+        for (int i = 0; i < currentLayer->getNeurons().size(); i++) {
             double sum = 0.0;
-            // sum over j: W_{l+1}(i,j)*delta_{l+1}(j)
-            for (int j = 0; j < nextLayer->getNumNeurons(); j++) {
-                double w = nextLayer->getNeuronAtIndex(j)->getWeightAtIndex(i);
-                sum += w * layerDeltas[l + 1][j];
+            for (int j = 0; j < nextLayer->getNeurons().size(); j++) {
+                sum += nextLayer->getNeurons()[j]->getWeightAtIndex(i) * deltas[l + 1][j];
             }
-
-            double dA_dZ = derivativeActivation_Z(zValues[i]);
-            
-            dC_dZ[i] = sum * dA_dZ;
+            deltas[l][i] = sum * derivativeActivation_Z(currentLayer->getZValues()[i]);
         }
+    }
 
-        layerDeltas[l] = dC_dZ;
-    } 
-
-    // adjust weights and biases
+    // Accumulate weight and bias gradients
     std::vector<double> prevActivations = inputData;
-    for (int l = 0; l < (int)layers.size(); l++) {
+    for (int l = 0; l < layers.size(); l++) {
         Layer* layer = layers[l];
+        gradients.weightGradients[l].resize(layer->getNeurons().size());
+        gradients.biasGradients[l].resize(layer->getNeurons().size());
 
-        // current layer deltas = layerDeltas[l]
-        std::vector<double> deltas = layerDeltas[l];
+        for (int n = 0; n < layer->getNeurons().size(); n++) {
+            Neuron* neuron = layer->getNeurons()[n];
+            gradients.biasGradients[l][n] = deltas[l][n];
 
-        for (int n = 0; n < layer->getNumNeurons(); n++) {
-            Neuron* neuron = layer->getNeuronAtIndex(n);
-
-            double newBias = neuron->getBias() - learningRate * deltas[n];
-            neuron->setBias(newBias);
-
-            std::vector<double> w = neuron->getWeights();
-            for (int w_i = 0; w_i < (int)w.size(); w_i++) {
-                double newWeight = w[w_i] - learningRate * deltas[n] * prevActivations[w_i];
-                w[w_i] = newWeight;
+            for (int w_i = 0; w_i < prevActivations.size(); w_i++) {
+                gradients.weightGradients[l][n].push_back(deltas[l][n] * prevActivations[w_i]);
             }
-            neuron->setWeights(w);
+        }
+        prevActivations = layer->getAValues();
+    }
+
+    return gradients;
+}
+
+void Network::updateWeightsAndBiases(const Gradients& gradients, double learningRate, int batchSize) {
+    for (int l = 0; l < layers.size(); l++) {
+        Layer* layer = layers[l];
+        for (int n = 0; n < layer->getNeurons().size(); n++) {
+            Neuron* neuron = layer->getNeurons()[n];
+
+            double updatedBias = neuron->getBias() - (learningRate / batchSize) * gradients.biasGradients[l][n];
+            neuron->setBias(updatedBias);
+
+            std::vector<double> weights = neuron->getWeights();
+            for (int w = 0; w < weights.size(); w++) {
+                weights[w] -= (learningRate / batchSize) * gradients.weightGradients[l][n][w];
+            }
+            neuron->setWeights(weights);
+        }
+    }
+}
+
+void Network::trainBatch(const std::vector<std::vector<double>>& batchInputs, const std::vector<std::vector<double>>& batchTargets, int epochs, double learningRate) {
+    for (int i = 0; i < epochs; i++) {
+        Gradients accumulatedGradients;
+
+        // Initialize gradients to zero
+        accumulatedGradients.weightGradients.resize(layers.size());
+        accumulatedGradients.biasGradients.resize(layers.size());
+
+        for (int l = 0; l < layers.size(); l++) {
+            accumulatedGradients.biasGradients[l].resize(layers[l]->getNeurons().size(), 0.0);
+            accumulatedGradients.weightGradients[l].resize(layers[l]->getNeurons().size());
         }
 
-        prevActivations = layer->getAValues();
+        // Accumulate gradients for the entire batch
+        for (int j = 0; j < batchInputs.size(); j++) {
+            Gradients gradients = computeGradients(batchInputs[j], batchTargets[j]);
+
+            for (int l = 0; l < layers.size(); l++) {
+                for (int n = 0; n < layers[l]->getNeurons().size(); n++) {
+                    accumulatedGradients.biasGradients[l][n] += gradients.biasGradients[l][n];
+
+                    accumulatedGradients.weightGradients[l][n].resize(gradients.weightGradients[l][n].size(), 0.0);
+                    for (int w = 0; w < gradients.weightGradients[l][n].size(); w++) {
+                        /*if (accumulatedGradients.weightGradients[l][n].size() <= w) {
+                            accumulatedGradients.weightGradients[l][n].push_back(0.0);
+                        }*/
+                        accumulatedGradients.weightGradients[l][n][w] += gradients.weightGradients[l][n][w];
+                    }
+                }
+            }
+        }
+
+        // Apply averaged gradients
+        updateWeightsAndBiases(accumulatedGradients, learningRate, batchInputs.size());
     }
 }

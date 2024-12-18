@@ -10,18 +10,32 @@ int main() {
 
     const auto startTime = std::chrono::steady_clock::now();
 
-    std::vector<int> topology = { 3, 15, 15, 15, 15, 8 };
+    std::vector<int> topology = { 3, 15, 13, 1 };
     Network network(topology);
 
-    std::vector<double> input = { 1, 0, 0 };
-    std::vector<double> target = { 0, 0, 0, 1, 0, 0, 0, 0 };
+    std::vector<std::vector<double>> inputs = { 
+        {1, 1, 1}, 
+        {1, 1, 0}, 
+        {1, 0, 1},
+		{1, 0, 0},
+		{0, 1, 1},
+		{0, 1, 0},
+		{0, 0, 1},
+		{0, 0, 0} };
 
+    std::vector<std::vector<double>> targets = { 
+        {7}, 
+        {6}, 
+        {5}, 
+        {4}, 
+        {3}, 
+        {2}, 
+        {1}, 
+        {0} };
 
-    for (int i = 0; i < 1000; i++) {
-        network.backpropogate(input, target);
-    }
+    network.trainBatch(inputs, targets, 1000, 0.1);
 
-    std::vector<double> output = network.frontpropogate(input);
+    std::vector<double> output = network.frontpropogate(inputs[0]);
 
     for (double value : output) {
         std::cout << value << std::endl;
@@ -32,6 +46,7 @@ int main() {
     const auto endTime = std::chrono::steady_clock::now();
 
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << std::endl;
+
 
     return 0;
 }
