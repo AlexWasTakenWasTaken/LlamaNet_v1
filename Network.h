@@ -7,6 +7,7 @@
 #include "Layer.h"
 
 class Network {
+	struct NetworkParameters;
 private:
 
 	struct Gradients {
@@ -31,15 +32,28 @@ private:
 	std::vector<double> derivativeCost_Output(const std::vector<double>& target, const std::vector<double>& output);
 
 	Gradients computeGradients(const std::vector<double>& inputData, const std::vector<double>& target);
-	void updateWeightsAndBiases(const Gradients& gradients, double learningRate, int batchSize);
 
-	void updateWeightsAndBiasesAdam(const Gradients& gradients, double learningRate, int batchSize, double beta1, double beta2, double epsilon);
+	void updateWeightsAndBiases(const Gradients& gradients, const NetworkParameters& param);
+
+	void trainBatch(const std::vector<std::vector<double>>& batchInputs, const std::vector<std::vector<double>>& batchTargets, const NetworkParameters& param);
 
 public:
+	struct NetworkParameters {
+		int epochs = 1000;
+		int batchSize = 1;
+
+		double learningRate = 0.1;
+		double beta1 = 0.9;
+		double beta2 = 0.999;
+		double epsilon = 1e-8;
+	};
+
 	Network(std::vector<int> topology, ActivationFunction* activationFunction);
 	std::vector<double> frontpropogate(const std::vector<double>& inputData);
 
-	void trainBatch(const std::vector<std::vector<double>>& batchInputs, const std::vector<std::vector<double>>& batchTargets, double learningRate, double beta1, double beta2, double epsilon);
-	void train(const std::vector<std::vector<double>>& inputData, const std::vector<std::vector<double>>& targets, int epochs, double learningRate, int batchSize, double beta1, double beta2, double epsilon);
+
+	void train(const std::vector<std::vector<double>>& inputData, const std::vector<std::vector<double>>& targets, const NetworkParameters& param);
+
+	double getCertainty(const std::vector<double> outputs);
 };
 #endif // !Network_H
