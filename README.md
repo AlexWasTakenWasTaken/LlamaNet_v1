@@ -4,9 +4,9 @@ A simple barebones (for now) Neural Network built using only the C++ Standard Li
 
 To Implement:
 
-Multi-Input Propagation
+Improved Batch Training
 
-Allow for variable learning rate,  leaky ReLU alphas and Huber Loss deltas
+Allow for variable learning rate, leaky ReLU alphas and Huber Loss deltas
 
 Allow for different activation functions 
 
