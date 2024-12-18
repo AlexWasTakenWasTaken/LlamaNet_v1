@@ -1,8 +1,8 @@
 #include "Layer.h"
 
-Layer::Layer(int numNeurons, int numInputs) {
+Layer::Layer(int numNeurons, int numInputs, ActivationFunction* activationFunction) {
 	for (int i = 0; i < numNeurons; i++) {
-		neurons.push_back(new Neuron(numInputs, numNeurons));
+		neurons.push_back(new Neuron(numInputs, numNeurons, activationFunction));
 	}
 }
 

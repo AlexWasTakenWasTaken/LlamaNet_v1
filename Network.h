@@ -15,6 +15,7 @@ private:
 	};
 
 	std::vector<Layer*> layers;
+	ActivationFunction* activationFunction;
 
 	double costFunction(const std::vector<double>& target, const std::vector<double>& output);
 	double costFunctionDerivative(double target, double output);
@@ -27,7 +28,7 @@ private:
 	void updateWeightsAndBiases(const Gradients& gradients, double learningRate, int batchSize);
 
 public:
-	Network(std::vector<int> topology);
+	Network(std::vector<int> topology, ActivationFunction* activationFunction);
 	std::vector<double> frontpropogate(const std::vector<double>& inputData);
 
 	void trainBatch(const std::vector<std::vector<double>>& batchInputs, const std::vector<std::vector<double>>& batchTargets, double learningRate);

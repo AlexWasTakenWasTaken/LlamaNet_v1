@@ -8,34 +8,36 @@
 int main() {
 	std::srand(static_cast<unsigned>(std::time(0)));
 
-    const auto startTime = std::chrono::steady_clock::now();
+	const auto startTime = std::chrono::steady_clock::now();
 
-    std::vector<int> topology = { 3, 15, 13, 1 };
-    Network network(topology);
+	std::vector<int> topology = { 3, 20, 20, 20, 8 };
 
-    std::vector<std::vector<double>> inputs = { 
-        {1, 1, 1}, 
-        {1, 1, 0}, 
-        {1, 0, 1},
+	ActivationFunction* activationFunction = new LeakyReLU(0.01);
+	Network* network = new Network(topology, activationFunction);
+
+	std::vector<std::vector<double>> inputs = {
+		{1, 1, 1},
+		{1, 1, 0},
+		{1, 0, 1},
 		{1, 0, 0},
 		{0, 1, 1},
 		{0, 1, 0},
 		{0, 0, 1},
 		{0, 0, 0} };
 
-    std::vector<std::vector<double>> targets = { 
-        {7}, 
-        {6}, 
-        {5}, 
-        {4}, 
-        {3}, 
-        {2}, 
-        {1}, 
-        {0} };
+	std::vector<std::vector<double>> targets = {
+		{1, 0, 0, 0, 0, 0, 0, 0},
+		{0, 1, 0, 0, 0, 0, 0, 0},
+		{0, 0, 1, 0, 0, 0, 0, 0},
+		{0, 0, 0, 1, 0, 0, 0, 0},
+		{0, 0, 0, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 1, 0, 0},
+		{0, 0, 0, 0, 0, 0, 1, 0},
+		{0, 0, 0, 0, 0, 0, 0, 1} };
 
-    network.train(inputs, targets, 1000, 0.1, 4);
+    network->train(inputs, targets, 1000, 0.1, 4);
 
-    std::vector<double> output = network.frontpropogate(inputs[0]);
+    std::vector<double> output = network->frontpropogate(inputs[5]);
 
     for (double value : output) {
         std::cout << value << std::endl;

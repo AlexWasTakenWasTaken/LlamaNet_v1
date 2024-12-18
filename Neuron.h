@@ -6,23 +6,24 @@
 #include <vector>
 #include <random>
 #include <ctime>
+#include "ActivationFunction.h"
 
 class Neuron {
 
 private: 
 	std::vector<double> weights;
 	double bias;
+	ActivationFunction* activationFunction;
 
 	double xavRand(int inputs, int outputs); //uses Xavier initialization method to determine the range of random weights
 public:
-    Neuron(int numInputs, int numOutputs);
+    Neuron(int numInputs, int numOutputs, ActivationFunction* activationFunction);
 
 	double dotProduct(const std::vector<double>& a, const std::vector<double>& b); //computes the dot product of two vectors
 
 	double feedForward(const std::vector<double>& inputs);
 
 	double activate(double x);
-	double derivative(double x);
 
 	std::vector<double> getWeights() const;
 	double getWeightAtIndex(int index) const;

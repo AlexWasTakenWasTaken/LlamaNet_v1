@@ -16,7 +16,7 @@ private:
 	std::vector<double> aValues;
 	
 public:
-	Layer(int numNeurons, int numInputs);
+	Layer(int numNeurons, int numInputs, ActivationFunction* activationFunction);
 	std::vector<double> feedForward(const std::vector<double>& inputs);
 
 	std::vector<Neuron*> getNeurons() const;

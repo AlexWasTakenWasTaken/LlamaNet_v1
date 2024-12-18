@@ -39,8 +39,7 @@ double Network::costFunctionDerivative(double target, double output) {
 }
 
 double Network::derivativeActivation_Z(double z) {
-	// derivative of Leaky ReLU activation function
-	return (z > 0) ? 1.0 : 0.01;
+	return activationFunction->derivative(z);
 }
 
 std::vector<double> Network::derivativeCost_Output(const std::vector<double>& target, const std::vector<double>& output) {
@@ -52,10 +51,11 @@ std::vector<double> Network::derivativeCost_Output(const std::vector<double>& ta
 	return gradients;
 }
 
-Network::Network(std::vector<int> topology) {
+Network::Network(std::vector<int> topology, ActivationFunction* activationFunction) {
 	for (int i = 1; i < topology.size(); i++) {
-		layers.push_back(new Layer(topology[i], topology[i - 1]));
+		layers.push_back(new Layer(topology[i], topology[i - 1], activationFunction));
 	}
+	this->activationFunction = activationFunction;
 }
 
 std::vector<double> Network::frontpropogate(const std::vector<double>& inputData) {

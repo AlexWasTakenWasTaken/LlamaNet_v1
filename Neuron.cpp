@@ -16,26 +16,22 @@ double Neuron::dotProduct(const std::vector<double>& a, const std::vector<double
 	return sum;
 }
 
-Neuron::Neuron(int numInputs, int numOutputs){
+Neuron::Neuron(int numInputs, int numOutputs, ActivationFunction* activationFunction){
 
     for (int i = 0; i < numInputs; ++i) {
         weights.push_back(xavRand(numInputs, numOutputs));
     }
     bias = xavRand(numInputs, numOutputs);
+
+	this->activationFunction = activationFunction;
 }
 
 double Neuron::feedForward(const std::vector<double>& inputs) {
 	return activate(dotProduct(inputs, weights));
 }
 
-//Leaky ReLU activation function, default alpha 0.01
 double Neuron::activate(double x) {
-	return (x > 0 ? x : 0.01 * x);
-}
-
-//Derivative of Leaky ReLU activation function, default alpha 0.01
-double Neuron::derivative(double x) {
-	return (x > 0 ? 1 : 0.01);
+	return activationFunction->activate(x);
 }
 
 std::vector<double> Neuron::getWeights() const {
