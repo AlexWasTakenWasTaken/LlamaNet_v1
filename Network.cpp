@@ -56,6 +56,29 @@ Network::Network(std::vector<int> topology, ActivationFunction* activationFuncti
 		layers.push_back(new Layer(topology[i], topology[i - 1], activationFunction));
 	}
 	this->activationFunction = activationFunction;
+
+	mWeights.resize(layers.size());
+	vWeights.resize(layers.size());
+	mBiases.resize(layers.size());
+	vBiases.resize(layers.size());
+
+	for (int l = 0; l < layers.size(); l++) {
+		Layer* layer = layers[l];
+		int neuronCount = layer->getNeurons().size();
+		mBiases[l].resize(neuronCount, 0.0);
+		vBiases[l].resize(neuronCount, 0.0);
+
+		mWeights[l].resize(neuronCount);
+		vWeights[l].resize(neuronCount);
+
+		for (int n = 0; n < neuronCount; n++) {
+			int weightCount = layer->getNeurons()[n]->getWeights().size();
+			mWeights[l][n].resize(weightCount, 0.0);
+			vWeights[l][n].resize(weightCount, 0.0);
+		}
+	}
+
+	t = 0;
 }
 
 std::vector<double> Network::frontpropogate(const std::vector<double>& inputData) {
@@ -140,7 +163,7 @@ void Network::updateWeightsAndBiases(const Gradients& gradients, double learning
 	}
 }
 
-void Network::trainBatch(const std::vector<std::vector<double>>& batchInputs, const std::vector<std::vector<double>>& batchTargets, double learningRate) {
+void Network::trainBatch(const std::vector<std::vector<double>>& batchInputs, const std::vector<std::vector<double>>& batchTargets, double learningRate, double beta1, double beta2, double epsilon) {
 
 	Gradients accumulatedGradients;
 
@@ -169,12 +192,12 @@ void Network::trainBatch(const std::vector<std::vector<double>>& batchInputs, co
 		}
 	}
 
-	// Apply averaged gradients
-	updateWeightsAndBiases(accumulatedGradients, learningRate, batchInputs.size());
+	// Apply averaged gradients using ADAM optimizer
+	updateWeightsAndBiasesAdam(accumulatedGradients, learningRate, batchInputs.size(), beta1, beta2, epsilon);
 
 }
 
-void Network::train(const std::vector<std::vector<double>>& inputData, const std::vector<std::vector<double>>& targets, int epochs, double learningRate, int batchSize) {
+void Network::train(const std::vector<std::vector<double>>& inputData, const std::vector<std::vector<double>>& targets, int epochs, double learningRate, int batchSize, double beta1, double beta2, double epsilon) {
 
 	int dataSize = inputData.size();
 	std::vector<int> indices(dataSize);
@@ -204,7 +227,54 @@ void Network::train(const std::vector<std::vector<double>>& inputData, const std
 				batchTargets[i - start] = targets[indices[i]];
 			}
 
-			trainBatch(batchInputs, batchTargets, learningRate);
+			trainBatch(batchInputs, batchTargets, learningRate, beta1, beta2, epsilon);
+		}
+	}
+}
+
+void Network::updateWeightsAndBiasesAdam(const Gradients& gradients, double learningRate, int batchSize, double beta1, double beta2, double epsilon) {
+
+	t++;
+
+	for (int l = 0; l < layers.size(); l++) {
+		Layer* layer = layers[l];
+
+		mWeights[l].resize(layer->getNeurons().size());
+		vWeights[l].resize(layer->getNeurons().size());
+		mBiases[l].resize(layer->getNeurons().size(), 0.0);
+		vBiases[l].resize(layer->getNeurons().size(), 0.0);
+
+		for (int n = 0; n < layer->getNeurons().size(); n++) {
+			Neuron* neuron = layer->getNeurons()[n];
+
+			mWeights[l][n].resize(neuron->getWeights().size(), 0.0);
+			vWeights[l][n].resize(neuron->getWeights().size(), 0.0);
+
+			// update bias
+			double gradBias = gradients.biasGradients[l][n];
+			mBiases[l][n] = beta1 * mBiases[l][n] + (1 - beta1) * gradBias;
+			vBiases[l][n] = beta2 * vBiases[l][n] + (1 - beta2) * (gradBias * gradBias);
+
+			double mHatBias = mBiases[l][n] / (1 - pow(beta1, t));
+			double vHatBias = vBiases[l][n] / (1 - pow(beta2, t));
+
+			double updatedBias = neuron->getBias() - learningRate * mHatBias / (sqrt(vHatBias) + epsilon);
+			neuron->setBias(updatedBias);
+
+			// update weights
+			std::vector<double> weights = neuron->getWeights();
+			for (int w = 0; w < weights.size(); w++) {
+				double gradWeight = gradients.weightGradients[l][n][w];
+				mWeights[l][n][w] = beta1 * mWeights[l][n][w] + (1 - beta1) * gradWeight;
+				vWeights[l][n][w] = beta2 * vWeights[l][n][w] + (1 - beta2) * (gradWeight * gradWeight);
+
+				double mHatWeight = mWeights[l][n][w] / (1 - pow(beta1, t));
+				double vHatWeight = vWeights[l][n][w] / (1 - pow(beta2, t));
+
+				weights[w] -= learningRate * mHatWeight / (sqrt(vHatWeight) + epsilon);
+			}
+
+			neuron->setWeights(weights);
 		}
 	}
 }

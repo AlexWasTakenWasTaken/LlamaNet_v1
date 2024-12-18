@@ -10,7 +10,7 @@ int main() {
 
 	const auto startTime = std::chrono::steady_clock::now();
 
-	std::vector<int> topology = { 3, 20, 20, 20, 8 };
+	std::vector<int> topology = { 3, 15, 8 };
 
 	ActivationFunction* activationFunction = new LeakyReLU(0.01);
 	Network* network = new Network(topology, activationFunction);
@@ -35,7 +35,7 @@ int main() {
 		{0, 0, 0, 0, 0, 0, 1, 0},
 		{0, 0, 0, 0, 0, 0, 0, 1} };
 
-    network->train(inputs, targets, 1000, 0.1, 4);
+    network->train(inputs, targets, 1000, 0.1, 4, 0.9, 0.999, 0.00000001);
 
     std::vector<double> output = network->frontpropogate(inputs[5]);
 
