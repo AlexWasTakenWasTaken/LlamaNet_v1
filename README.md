@@ -6,11 +6,13 @@ Current Features:
 
 FCNN
 
-Multi-input training
+Multi-input randomized batch training
+
+ADAM learning algorithm (adaptive moment estimation)
 
 Huber Loss Cost function
 
-Leaky ReLU activation function
+Multiple activation functions available (Leaky ReLU, ReLU, Sigmoid Tanh)
 
 Xavier Initialization
 
