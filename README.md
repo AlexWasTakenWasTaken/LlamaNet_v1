@@ -2,17 +2,17 @@
 
 A simple barebones (for now) Neural Network built using only the C++ Standard Library
 
-To Implement:
+Current Features:
 
-Multi-Input Propagation
+FCNN
 
-Allow for variable learning rate,  leaky ReLU alphas and Huber Loss deltas
+Multi-input training
 
-Allow for different activation functions 
+Huber Loss Cost function
 
-ADAM adaptive learning rate
+Leaky ReLU activation function
 
-Nesterov Accelerated Gradient
+Xavier Initialization
 
 
-Authored by: Alex Tan
+Authored by: Alex Tan (2024)
