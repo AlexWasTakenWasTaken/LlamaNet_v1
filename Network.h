@@ -30,6 +30,7 @@ public:
 	Network(std::vector<int> topology);
 	std::vector<double> frontpropogate(const std::vector<double>& inputData);
 
-	void trainBatch(const std::vector<std::vector<double>>& batchInputs, const std::vector<std::vector<double>>& batchTargets, int epochs, double learningRate);
+	void trainBatch(const std::vector<std::vector<double>>& batchInputs, const std::vector<std::vector<double>>& batchTargets, double learningRate);
+	void train(const std::vector<std::vector<double>>& inputData, const std::vector<std::vector<double>>& targets, int epochs, double learningRate, int batchSize);
 };
 #endif // !Network_H

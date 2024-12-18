@@ -33,7 +33,7 @@ int main() {
         {1}, 
         {0} };
 
-    network.trainBatch(inputs, targets, 1000, 0.1);
+    network.train(inputs, targets, 1000, 0.1, 4);
 
     std::vector<double> output = network.frontpropogate(inputs[0]);
 
