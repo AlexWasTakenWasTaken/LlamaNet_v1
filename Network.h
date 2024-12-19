@@ -39,7 +39,7 @@ private:
 
 public:
 	struct NetworkParameters {
-		int epochs = 1000;
+		int epochs = 1;
 		int batchSize = 1;
 
 		double learningRate = 0.1;
@@ -53,7 +53,5 @@ public:
 
 
 	void train(const std::vector<std::vector<double>>& inputData, const std::vector<std::vector<double>>& targets, const NetworkParameters& param);
-
-	double getCertainty(const std::vector<double> outputs);
 };
 #endif // !Network_H

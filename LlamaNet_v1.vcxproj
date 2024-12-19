@@ -139,6 +139,9 @@
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Neuron.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="LlamaNet Benchmark Results.xlsx" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
