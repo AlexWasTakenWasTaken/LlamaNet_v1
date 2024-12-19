@@ -31,4 +31,4 @@ Hi 👋! I'm Alex, and I developed a Neural Network deep learning library in C++
 - Implement SVMs
 
 
-You'll probably see these changes in v2 of the LlamaNet, where I will also implement a custom image processing library to be able to detect hotdogs 🌭🌭🌭🌭 . Hope to see you there!
+You'll probably see these changes in v2 of the LlamaNet, where I will also implement a custom image processing library to be able to detect and classify hotdogs 🌭🌭🌭🌭. Hope to see you there!
